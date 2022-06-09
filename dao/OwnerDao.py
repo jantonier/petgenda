@@ -73,3 +73,27 @@ class OwnerDao:
         # owner_id = result[1]
         self.conn.commit()
         return result
+
+    def getOwnerIdByEmail(self, email):
+        cursor = self.conn.cursor()
+        query = "select owner_id from owner where email = %s"
+        try:
+            cursor.execute(query, (email,))
+        except psycopg2.Error as e:
+            return
+        result = cursor.fetchone()
+        hashedPassword = result[0]
+        self.conn.commit()
+        return hashedPassword
+
+    def getOwnerEmailInformation(self, email):
+        cursor = self.conn.cursor()
+        query = "select name, lastname, email from owner where email = %s"
+        try:
+            cursor.execute(query, (email,))
+        except psycopg2.Error as e:
+            return
+        result = cursor.fetchone()
+        #info = result[0]
+        self.conn.commit()
+        return result

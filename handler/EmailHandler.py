@@ -23,5 +23,5 @@ class EmailHandler():
             ]
         }
         result = mailjet.send.create(data=data)
-        return "result"
+        return "Email sent"
 

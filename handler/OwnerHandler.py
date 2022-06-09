@@ -2,6 +2,7 @@ from dao.OwnerDao import OwnerDao
 from flask import jsonify
 from Dictionary import *
 import datetime
+from handler.EmailHandler import EmailHandler
 
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
 
@@ -32,10 +33,6 @@ class OwnerHandler:
         result = dao.createOwner(name, lastname, email, password)
         return jsonify(result)
 
-    # def getOwnerIdByEmail(self, email):
-    #     dao = OwnerDao()
-    #     return 
-
     def login(self, json):
         dao = OwnerDao()
         email = json.get('email')
@@ -63,3 +60,42 @@ class OwnerHandler:
         result = mapLoginToDict(name, access_token)
 
         return jsonify(result), 200
+
+    def forgotPassword(self, json):
+        email = json.get('email')
+        if email is None:
+            return jsonify(Error="Malformed request"), 400
+        dao = OwnerDao()
+        # password = dao.getOwnerPasswordByEmail(email)
+        ownerInfo = dao.getOwnerEmailInformation(email)
+        if ownerInfo is None:
+            return jsonify(Error="Email is not registered as an user"), 404
+        expires = datetime.timedelta(minutes=10)
+        access_token = create_access_token(identity=email, expires_delta=expires)
+        mapped_ownerInfo = []
+        mapped_ownerInfo.append(mapOwnerInfoToDict(ownerInfo))
+        emailHandler = EmailHandler()
+        subject = "Petgenda: Password Change Request"
+        html = "Saludos, hemos recibido su solicitud para cambiar su contraseña. " \
+               "<br>Si usted no hizo esta solicitud, haga caso omiso a este mensaje. " \
+               "<br>Para cambiar su contraseña, favor de presionar el siguiente enlace:" \
+               "<br>http://google.com/"+access_token
+        result = emailHandler.sendEmail(subject, mapped_ownerInfo, html)
+        return jsonify(result)
+
+    def sharePet(self, json, owner_id):
+        dao = OwnerDao()
+
+        pet_id = json.get('pet_id')
+        target_email = json.get('email')
+        
+        if pet_id is None or target_email is None:
+            return jsonify(Error="Malformed Request"), 400
+
+        target_id = dao.getOwnerIdByEmail(target_email)
+        if target_email is None:
+            return jsonify(Error="User not registered"), 400
+
+        
+        result = dao.createSharedOwner(name, lastname, email, password) #Terminar
+        return jsonify(result)

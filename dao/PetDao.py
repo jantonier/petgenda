@@ -130,3 +130,109 @@ class PetDao:
             return e
         self.conn.commit()
         return "Done"
+
+    def getLog(self, owner_id):
+        cursor = self.conn.cursor()
+        query = "select log_id, pet_name, action_name, date from log natural inner join action natural inner join owns where owner_id = %s and log_is_deleted = false and confirmed = true"
+        try:
+            cursor.execute(query, (owner_id,))
+        except psycopg2.Error as e:
+            return
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def getPetLog(self, pet_id):
+        cursor = self.conn.cursor()
+        query = "select log_id, pet_name, action_name, date from log natural inner join action natural inner join owns where pet_id = %s and log_is_deleted = false and confirmed = true"
+        try:
+            cursor.execute(query, (pet_id,))
+        except psycopg2.Error as e:
+            return
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def createPetLog(self, action_id, date):
+        cursor = self.conn.cursor()
+        query = "insert into log (action_id, date, log_is_deleted) values (%s, %s, false)"
+        try:
+            cursor.execute(query, (action_id, date,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def deletePetLog(self, log_id):
+        cursor = self.conn.cursor()
+        query = "update log set log_is_deleted = true where log_id = %s"
+        try:
+            cursor.execute(query, (log_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def updatePetLog(self, log_id, action_id, date):
+        cursor = self.conn.cursor()
+        query = "update log set action_id = %s, date = %s where log_id = %s"
+        try:
+            cursor.execute(query, (action_id, date, log_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def createCalendar(self, event_name, date, owner_id):
+        cursor = self.conn.cursor()
+        query = "insert into calendar (event_name, date, owner_id, calendar_is_deleted) values (%s, %s, %s, false)"
+        try:
+            cursor.execute(query, (event_name, date, owner_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def createPetCalendar(self, event_name, date, owner_id, pet_id):
+        cursor = self.conn.cursor()
+        query = "insert into calendar (event_name, date, owner_id, pet_id, calendar_is_deleted) values (%s, %s, %s, %s, false)"
+        try:
+            cursor.execute(query, (event_name, date, owner_id, pet_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def getCalendar(self, owner_id):
+        cursor = self.conn.cursor()
+        query = "select calendar_id, event_name, date, owner_id, pet_id from calendar natural inner join owns natural inner join pet where owner_id = %s and calendar_is_deleted = false and confirmed = true and owns_is_deleted = false"
+        try:
+            cursor.execute(query, (owner_id,))
+        except psycopg2.Error as e:
+            return
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
+    def deleteCalendar(self, calendar_id):
+        cursor = self.conn.cursor()
+        query = "update calendar set calendar_is_deleted = true where calendar_id = %s"
+        try:
+            cursor.execute(query, (calendar_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
+
+    def updateCalendar(self, calendar_id, event_name, date, pet_id):
+        cursor = self.conn.cursor()
+        query = "update calendar set event_name = %s, date = %s, pet_id = %s where calendar_id = %s"
+        try:
+            cursor.execute(query, (event_name, date, pet_id, calendar_id,))
+        except psycopg2.Error as e:
+            return e
+        self.conn.commit()
+        return "Done"
