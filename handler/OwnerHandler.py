@@ -35,12 +35,17 @@ class OwnerHandler:
 
     def login(self, json):
         dao = OwnerDao()
+        if json is None:
+            return jsonify(Error="Malformed Request"), 400
         email = json.get('email')
         password = json.get('password')
         if email is None or password is None:
             return jsonify(Error="Malformed Request"), 400
         #verificamos si el admin existe
         result = dao.getOwnerNameAndIdByEmail(email)
+        if len(result) == 0:
+            return jsonify(Error="User not registered"), 404
+
         name = result[0][0]
         owner_id = result[0][1]
 

@@ -115,7 +115,7 @@ def sharePet():
     identity = get_jwt_identity()
     return OwnerHandler().sharePet(request.json, identity)
 
-@app.route("/login")
+@app.route("/login", methods=['GET', 'POST'])
 def login():
     return OwnerHandler().login(request.json)
 
